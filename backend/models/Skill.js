@@ -24,14 +24,31 @@ const skillSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now()
+    publicId: {
+        type: String,
+        required: true
     }
+    
+},
+{
+     timestamps: true
 });
+
+skillSchema.pre("save", async function (next) {
+    try {
+      const Skill = mongoose.model("Skill");
+  
+      const count = await Skill.countDocuments({ user: this.user });
+  
+      if (count >= 10 ) { 
+        return next(new Error("You have reached the maximum number of skills"));
+      }
+  
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+  
 
 module.exports = mongoose.model("Skill", skillSchema);  

@@ -16,8 +16,13 @@ exports.protect = async (req, res, next) => {
 };
 
 exports.admin = (req, res, next) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "You don't have permission" });
+    try {
+        if (req.user.role !== "admin") {
+            return next({ status: 403, message: "Forbidden" });
+        }
+    } catch (error) {
+        return next(error);
     }
-    next();
 };
+
+module.exports = { protect, admin };

@@ -20,26 +20,17 @@ const userSchema = new mongoose.Schema({
         enum: ["user", "admin"],
         default: "user"
     },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now()
-    },
-    settings: {
-        cookies: {
-            necessary: { type: Boolean, default: true },
-            optional: { type: Boolean, default: false }
+    skills: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Skill"
         }
-    },
-    theme: {
-        type: String,
-        enum: ["light", "dark"],
-        default: "light"
-    }
-});
+    ]
+},
+{
+    timestamps: true
+}
+);
 
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
