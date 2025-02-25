@@ -20,7 +20,7 @@ const skillSchema = new Schema({
         required: true,
         enum: ["Beginner", "Intermediate", "Expert"]
     },
-    imageURL: {
+    imageUrl: {
         type: String,
         required: true
     },
