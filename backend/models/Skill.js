@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const User = require("./User");
+import { Schema, model } from "mongoose";
+import User from "./User.js";
 
-const skillSchema = new mongoose.Schema({
+const skillSchema = new Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         required: true,
         ref: "User"
     },
@@ -36,7 +36,7 @@ const skillSchema = new mongoose.Schema({
 
 skillSchema.pre("save", async function (next) {
     try {
-      const Skill = mongoose.model("Skill");
+      const Skill = model("Skill");
   
       const count = await Skill.countDocuments({ user: this.user });
   
@@ -51,4 +51,4 @@ skillSchema.pre("save", async function (next) {
   });
   
 
-module.exports = mongoose.model("Skill", skillSchema);  
+export default model("Skill", skillSchema);  

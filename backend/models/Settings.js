@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const settingsSchema = new mongoose.Schema({
+const settingsSchema = new Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         required: true,
         ref: "User"
     },
@@ -18,4 +18,4 @@ const settingsSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("Settings", settingsSchema);
+export default model("Settings", settingsSchema);

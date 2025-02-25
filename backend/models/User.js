@@ -1,7 +1,9 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import { Schema, model } from "mongoose";
+import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
+const { genSalt, hash, compare } = bcrypt;
+
+const userSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -22,7 +24,7 @@ const userSchema = new mongoose.Schema({
     },
     skills: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Skill"
         }
     ]
@@ -35,8 +37,8 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
     try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
+        const salt = await genSalt(10);
+        this.password = await hash(this.password, salt);
         next();
     } catch (error) {
         next(error);
@@ -45,10 +47,10 @@ userSchema.pre('save', async function(next) {
 
 userSchema.methods.matchPassword = async function (password) {
     try {
-        return await bcrypt.compare(password, this.password);
+        return await compare(password, this.password);
     } catch (error) {
         throw error;  
     }
 }
 
-module.exports = mongoose.model("User", userSchema);
+export default model("User", userSchema);

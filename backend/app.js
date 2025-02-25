@@ -1,17 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv")
-const helmet = require("helmet");
-const userRoutes = require("./routes/userRoutes");
-const skillRoutes = require("./routes/skillRoutes");
-const errorHandler = require("./middleware/errorHandler");
-const morganMiddleware = require("./middleware/morganMiddleware");
+import express, { json } from "express";
+import cors from "cors";
+import { config } from "dotenv";
+import helmet from "helmet";
+import userRoutes from "./routes/userRoutes.js";
+import skillRoutes from "./routes/skillRoutes.js";
+import errorHandler from "./middleware/errorHandler.js";
+import morganMiddleware from "./middleware/morganMiddleware.js";
 
 const app = express();
 
-dotenv.config();
+config();
 app.use(morganMiddleware);
-app.use(express.json());
+app.use(json());
 app.use(helmet());
 app.use(cors());
 
@@ -20,4 +20,4 @@ app.use("/api/skills", skillRoutes);
 
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

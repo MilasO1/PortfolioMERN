@@ -1,13 +1,14 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+const { verify } = jwt;
+import User from "../models/User.js";
 
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
         if (!token) {
             return res.status(401).json({ message: "Unauthorized" });
         }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = verify(token, process.env.JWT_SECRET);
         req.user = await User.findById(decoded.id);
         next();
     } catch (error) {
@@ -15,7 +16,7 @@ const protect = async (req, res, next) => {
     }
 };
 
-const admin = (req, res, next) => {
+ export const admin = (req, res, next) => {
     try {
         if (req.user.role !== "admin") {
             return next({ status: 403, message: "Forbidden" });
@@ -25,4 +26,4 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin };
+export default { protect, admin };

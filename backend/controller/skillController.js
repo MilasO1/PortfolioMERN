@@ -1,7 +1,7 @@
-const Skill = require("../models/Skill");
-const User = require("../models/User");
-const fs = require("fs");
-const { v2: cloudinary } = require("cloudinary");
+import Skill from "../models/Skill.js";
+import User from "../models/User.js";
+import { unlinkSync, promises } from "fs";
+import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,16 +10,16 @@ cloudinary.config({
   secure: true
 });
 
-exports.getSkills = async (req, res, next) => {
+export async function getSkills(req, res, next) {
     try {
-      const skills = await Skill.find({ user: req.user._id });
+      const skills = await find({ user: req.user._id });
       res.status(200).json(skills);
     } catch (error) {
       next(error);
     }
-  };
+  }
   
-  exports.createSkill = async (req, res, next) => {
+  export async function   createSkill(req, res, next) {
     try {
       const { title, category, level } = req.body;
       const user = await User.findById(req.user._id);
@@ -30,10 +30,10 @@ exports.getSkills = async (req, res, next) => {
         folder: 'skills',
         resource_type: 'image'
       });
-      fs.unlinkSync(req.file.path);
+      unlinkSync(req.file.path);
       let imageUrl = result.secure_url;
       let publicId = result.public_id;
-      const skill = await Skill.create({ title, category, level, user, imageUrl, publicId });
+      const skill = await create({ title, category, level, user, imageUrl, publicId });
 
       user = await User.findByIdAndUpdate(req.user._id, { $addToSet: { skills: skill._id } }, { new: true }).select('-password');
 
@@ -41,15 +41,15 @@ exports.getSkills = async (req, res, next) => {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  exports.deleteSkill = async (req, res, next) => {
+  export async function   deleteSkill(req, res, next) {
     const userId = req.user.id;
     const skillId = req.params.id;
     try {
   
       // Find and delete skill in one operation
-      const skill = await Skill.findOneAndDelete({ 
+      const skill = await findOneAndDelete({ 
         _id: skillId,
         user: userId 
       });
@@ -85,15 +85,15 @@ exports.getSkills = async (req, res, next) => {
       console.error('Skill deletion error:', error);
       return next(error);
     }
-  };
+  }
 
-  exports.updateSkill = async (req, res, next) => {
+  export async function   updateSkill(req, res, next) {
     try {
       const { title, category, level, urlImage: existingUrlImage, public_id: existingPublicId } = req.body;
       const { id: skillId } = req.params;
       const userId = req.user._id; 
   
-      const existingSkill = await Skill.findOne({ 
+      const existingSkill = await findOne({ 
         _id: skillId,
         user: userId 
       });
@@ -116,7 +116,7 @@ exports.getSkills = async (req, res, next) => {
             fetch_format: 'auto'
           });
 
-          await fs.promises.unlink(req.file.path);
+          await promises.unlink(req.file.path);
   
           if (existingPublicId) {
             try {
@@ -135,7 +135,7 @@ exports.getSkills = async (req, res, next) => {
           };
         } catch (uploadError) {
           if (req.file.path) {
-            await fs.promises.unlink(req.file.path).catch(console.error);
+            await promises.unlink(req.file.path).catch(console.error);
           }
           return res.status(500).json({
             message: 'Error uploading image',
@@ -144,7 +144,7 @@ exports.getSkills = async (req, res, next) => {
         }
       }
   
-      const updatedSkill = await Skill.findByIdAndUpdate(
+      const updatedSkill = await findByIdAndUpdate(
         skillId,
         {
           $set: {
@@ -169,7 +169,7 @@ exports.getSkills = async (req, res, next) => {
   
     } catch (error) {
       if (req.file?.path) {
-        await fs.promises.unlink(req.file.path).catch(console.error);
+        await promises.unlink(req.file.path).catch(console.error);
       }
       
       if (error.name === 'ValidationError') {
@@ -178,4 +178,4 @@ exports.getSkills = async (req, res, next) => {
   
       return next(error);
     }
-  };
+  }

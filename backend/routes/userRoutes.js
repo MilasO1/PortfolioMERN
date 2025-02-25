@@ -1,17 +1,13 @@
-const express = require("express");
-const router = express.Router();
-const { verifyRecaptcha } = require("../middleware/recaptcha");
-const { protect, admin } = require("../middleware/auth");
-const {
-    register,
-    login,
-    getAllUsers,
-} = require("../controller/authController");
-const { validatorRequest } = require("../middleware/validatorRequest");
-const { loginValidator, registerValidator } = require("../validations/authValidator");
+import { Router } from "express";
+const router = Router();
+import { verifyRecaptcha } from "../middleware/recaptcha.js";
+import { protect, admin } from "../middleware/auth.js";
+import { register, login, getAllUsers } from "../controller/authController.js";
+import { validatorRequest } from "../middleware/validatorRequest.js";
+import { loginValidator, registerValidator } from "../validations/authValidator.js";
 
 router.get("/", admin, getAllUsers);
 router.post("/register", registerValidator, register);
 router.post("/login", loginValidator, validatorRequest, login);
 
-module.exports = router;
+export default router;

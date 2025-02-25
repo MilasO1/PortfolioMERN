@@ -1,5 +1,5 @@
-const morgan = require("morgan");
-const logger = require("../config/logger");
+import morgan from "morgan";
+import logger from "../config/logger.js";
 
 const morganMiddleware = morgan((tokens, req, res) => {
     const logData = {
@@ -19,4 +19,4 @@ const morganMiddleware = morgan((tokens, req, res) => {
     },
 });
 
-module.exports = morganMiddleware;
+export default morganMiddleware;

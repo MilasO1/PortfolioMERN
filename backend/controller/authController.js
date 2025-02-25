@@ -1,12 +1,15 @@
-const User = require("../models/User");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
+const { sign } = jwt;
+const { genSalt, hash, compare } = bcrypt;
 
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    return sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-exports.register = async (req, res, next) => {
+export async function register(req, res, next) {
     try {
         const { name, email, password } = req.body;
         const userExists = await User.findOne({ email });
@@ -14,8 +17,8 @@ exports.register = async (req, res, next) => {
             return res.status(400).json({ message: "Existing user"});
         }
         const user = await User.create({ name, email, password});
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        const salt = await genSalt(10);
+        user.password = await hash(password, salt);
 
 
         const token = generateToken(user._id);
@@ -24,9 +27,9 @@ exports.register = async (req, res, next) => {
     } catch (error) {
         return next (error);
         }
-};
+}
 
-exports.login = async (req, res, next) => {
+export async function login(req, res, next) {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -34,7 +37,7 @@ exports.login = async (req, res, next) => {
             return next ({ status: 400, message: "Please enter email and password" });
         }
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !(await compare(password, user.password))) {
             return next ({ status: 400, message: "Invalid email or password" });
         }
 
@@ -46,13 +49,13 @@ exports.login = async (req, res, next) => {
     } catch (error) {
         return next (error);
     }
-};
+}
 
-exports.getAllUsers = async (req, res, next) => {
+export async function getAllUsers(req, res, next) {
     try {
         const users = await User.find({}).select("-password");
         res.status(200).json({ users });
     } catch (error) {
         return next (error);
     }
-};
+}

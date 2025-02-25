@@ -1,8 +1,8 @@
-const axios = require('axios');
-const asyncHandler = require('express-async-handler');
-const qs = require('qs');
+import axios from 'axios';
+import asyncHandler from 'express-async-handler';
+import { stringify } from 'qs';
 
-const verifyRecaptcha = asyncHandler(async (req, res, next) => {
+export const verifyRecaptcha = asyncHandler(async (req, res, next) => {
     const { recaptcha } = req.body;
     
     if (!recaptcha) {
@@ -21,9 +21,9 @@ const verifyRecaptcha = asyncHandler(async (req, res, next) => {
     }
     
     try {
-        const response = await axios.post(
+        const response = await axiospost(
             'https://www.google.com/recaptcha/api/siteverify',
-            qs.stringify({
+            stringify({
                 secret: process.env.RECAPTCHA_SECRET_KEY,
                 response: recaptcha
             }),
@@ -52,4 +52,4 @@ const verifyRecaptcha = asyncHandler(async (req, res, next) => {
     }
 });
 
-module.exports = { verifyRecaptcha } ;
+export default { verifyRecaptcha } ;
