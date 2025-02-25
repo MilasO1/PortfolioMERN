@@ -10,8 +10,8 @@ const {
 const { validatorRequest } = require("../middleware/validatorRequest");
 const { loginValidator, registerValidator } = require("../validations/authValidator");
 
-router.get("/", protect, admin, getAllUsers);
+router.get("/", admin, getAllUsers);
 router.post("/register", registerValidator, register);
-router.post("/login", verifyRecaptcha, loginValidator, validatorRequest, login);
+router.post("/login", loginValidator, validatorRequest, login);
 
 module.exports = router;

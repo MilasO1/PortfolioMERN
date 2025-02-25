@@ -4,14 +4,22 @@ const qs = require('qs');
 
 const verifyRecaptcha = asyncHandler(async (req, res, next) => {
     const { recaptcha } = req.body;
-
+    
     if (!recaptcha) {
         return next({
             status: 400,
-            message: "Missing recaptcha"
+            message: "Missing recaptcha token"
         });
     }
-
+    
+    if (!process.env.RECAPTCHA_SECRET_KEY) {
+        console.error('RECAPTCHA_SECRET_KEY is not defined');
+        return next({
+            status: 500,
+            message: "Server configuration error"
+        });
+    }
+    
     try {
         const response = await axios.post(
             'https://www.google.com/recaptcha/api/siteverify',
@@ -22,21 +30,26 @@ const verifyRecaptcha = asyncHandler(async (req, res, next) => {
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                },
+                timeout: 5000
             }
         );
-
-        if (!response.data.success) {
+        
+        if (!response.data || !response.data.success) {
             return next({
                 status: 400,
-                message: "Invalid recaptcha"
+                message: "reCAPTCHA verification failed"
             });
         }
-
+        
         next();
     } catch (error) {
-        next(error);
+        console.error('reCAPTCHA verification error:', error.message);
+        return next({
+            status: 500,
+            message: "Failed to verify reCAPTCHA"
+        });
     }
 });
 
-module.exports = verifyRecaptcha;
+module.exports = { verifyRecaptcha } ;

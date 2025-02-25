@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/auth");
 const { validatorRequest } = require("../middleware/validatorRequest");
 const { skillCreationValidator } = require("../validations/authValidator");
 const {
@@ -9,7 +9,7 @@ const {
     getSkills,
     updateSkill,
     deleteSkill,
-} = require("../controllers/skillController");
+} = require("../controller/skillController");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

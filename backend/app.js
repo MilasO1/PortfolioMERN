@@ -20,6 +20,4 @@ app.use("/api/skills", skillRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-
 module.exports = app;
