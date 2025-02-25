@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-exports.protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
     try {
         const token = req.cookies.jwt;
         if (!token) {
@@ -15,7 +15,7 @@ exports.protect = async (req, res, next) => {
     }
 };
 
-exports.admin = (req, res, next) => {
+const admin = (req, res, next) => {
     try {
         if (req.user.role !== "admin") {
             return next({ status: 403, message: "Forbidden" });
