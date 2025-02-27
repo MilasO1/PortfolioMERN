@@ -71,25 +71,24 @@ export async function getSkills(req, res, next) {
     }
   }
 
-  export async function   deleteSkill(req, res, next) {
+  export async function deleteSkill(req, res, next) {
     const userId = req.user.id;
     const skillId = req.params.id;
-    try {
   
-      // Find and delete skill in one operation
+    try {
       const skill = await Skill.findOneAndDelete({ 
         _id: skillId,
         user: userId 
       });
   
       if (!skill) {
-        return next({status:404, message: 'Skill not found or unauthorized' });
+        return next({ status: 404, message: 'Skill not found or unauthorized' });
       }
   
-      if (skill.public_id) {
+      
+      if (skill.publicId) {
         try {
-          const cloudinaryResponse = await cloudinary.uploader.destroy(skill.public_id);
-          
+          const cloudinaryResponse = await cloudinary.uploader.destroy(skill.publicId);
           if (cloudinaryResponse.result !== 'ok') {
             console.error('Cloudinary deletion warning:', cloudinaryResponse);
           }
@@ -114,96 +113,95 @@ export async function getSkills(req, res, next) {
       return next(error);
     }
   }
-
+  
   export async function updateSkill(req, res, next) {
-    try {
-      const { title, category, level, urlImage: existingUrlImage, public_id: existingPublicId } = req.body;
-      const { id: skillId } = req.params;
-      const userId = req.user._id; 
+      try {
+          const { title, category, level, imageUrl: existingImageUrl, publicId: existingPublicId } = req.body;
+          const { id: skillId } = req.params;
+          const userId = req.user._id;
   
-      const existingSkill = await Skill.findOne({ 
-        _id: skillId,
-        user: userId 
-      });
-  
-      if (!existingSkill) {
-       return next({status:404, message: 'Skill not found or unauthorized' });
-      }
-
-      let imageData = {
-        imageUrl: existingUrlImage,
-        publicId: existingPublicId
-      };
-  
-      if (req.file) {
-        try {
-          const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'skills',
-            resource_type: 'auto',
-            quality: 'auto',
-            fetch_format: 'auto'
+          const existingSkill = await Skill.findOne({
+              _id: skillId,
+              user: userId
           });
-
-          await promises.unlink(req.file.path);
   
-          if (existingPublicId) {
-            try {
-              const deleteResult = await cloudinary.uploader.destroy(existingPublicId);
-              if (deleteResult.result !== 'ok') {
-                console.warn('Warning: Previous image deletion may have failed:', deleteResult);
-              }
-            } catch (cloudinaryError) {
-              console.error('Error deleting previous image:', cloudinaryError);
-            }
+          if (!existingSkill) {
+              return next({ status: 404, message: 'Skill not found or unauthorized' });
           }
   
-          imageData = {
-            urlImage: uploadResult.secure_url,
-            public_id: uploadResult.public_id
+          let imageData = {
+              imageUrl: existingImageUrl,
+              publicId: existingPublicId
           };
-        } catch (uploadError) {
-          if (req.file.path) {
-            await promises.unlink(req.file.path).catch(console.error);
+  
+          if (req.file) {
+              try {
+                  const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+                      folder: 'skills',
+                      resource_type: 'auto',
+                      quality: 'auto',
+                      fetch_format: 'auto'
+                  });
+  
+                  await promises.unlink(req.file.path);
+  
+                  if (existingPublicId) {
+                      try {
+                          const deleteResult = await cloudinary.uploader.destroy(existingPublicId);
+                          if (deleteResult.result !== 'ok') {
+                              console.warn('Warning: Previous image deletion may have failed:', deleteResult);
+                          }
+                      } catch (cloudinaryError) {
+                          console.error('Error deleting previous image:', cloudinaryError);
+                      }
+                  }
+  
+                  imageData = {
+                      imageUrl: uploadResult.secure_url,
+                      publicId: uploadResult.public_id
+                  };
+              } catch (uploadError) {
+                  if (req.file.path) {
+                      await promises.unlink(req.file.path).catch(console.error);
+                  }
+                  return res.status(500).json({
+                      message: 'Error uploading image',
+                      error: uploadError.message
+                  });
+              }
           }
-          return res.status(500).json({
-            message: 'Error uploading image',
-            error: uploadError.message
+  
+          const updatedSkill = await Skill.findByIdAndUpdate(
+              skillId,
+              {
+                  $set: {
+                      title: title || existingSkill.title,
+                      category: category || existingSkill.category,
+                      level: level || existingSkill.level,
+                      imageUrl: imageData.imageUrl,
+                      publicId: imageData.publicId
+                  }
+              },
+              {
+                  new: true,
+                  runValidators: true
+              }
+          );
+  
+          return res.status(200).json({
+              message: 'Skill updated successfully',
+              skill: updatedSkill
           });
-        }
-      }
   
-      const updatedSkill = await Skill.findByIdAndUpdate(
-        skillId,
-        {
-          $set: {
-            title: title || existingSkill.title,
-            category: category || existingSkill.category,
-            level: level || existingSkill.level,
-            urlImage: imageData.urlImage,
-            public_id: imageData.public_id,
-            updatedAt: new Date()
+      } catch (error) {
+          if (req.file?.path) {
+              await promises.unlink(req.file.path).catch(console.error);
           }
-        },
-        { 
-          new: true,
-          runValidators: true 
-        }
-      );
   
-      return res.status(200).json({
-        message: 'Skill updated successfully',
-        skill: updatedSkill
-      });
+          if (error.name === 'ValidationError') {
+              return next({ status: 400, message: 'Invalid request data' });
+          }
   
-    } catch (error) {
-      if (req.file?.path) {
-        await promises.unlink(req.file.path).catch(console.error);
+          return next(error);
       }
-      
-      if (error.name === 'ValidationError') {
-        return next({ status: 400, message: 'Invalid request data' });
-      }
-  
-      return next(error);
-    }
   }
