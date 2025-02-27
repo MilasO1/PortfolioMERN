@@ -15,22 +15,40 @@ export default function SkillForm({ onSuccess, initialData }) {
     data.append('title', formData.title);
     data.append('category', formData.category);
     data.append('level', formData.level);
-    if (formData.image) data.append('imageUrl', formData.image);
-
+    
+    
+    if (formData.image) {
+      data.append('imageUrl', formData.image); 
+    }
+  
     try {
       const endpoint = initialData 
         ? `/api/skills/${initialData._id}`
         : '/api/skills/addSkills';
       const method = initialData ? 'put' : 'post';
       
-      const { data: result } = await axios[method](endpoint, data, {
+      console.log(`Sending ${method.toUpperCase()} request to ${endpoint}`);
+      
+      const response = await axios[method](endpoint, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true
       });
-
-      onSuccess(result.skill);
+  
+      console.log("Server response:", response.data);
+      
+      if (response.data && response.data.skill) {
+        onSuccess(response.data.skill);
+      } else {
+        console.error('Unexpected response format:', response.data);
+        // Still call onSuccess to close the form even if response format is unexpected
+        onSuccess(response.data);
+      }
     } catch (error) {
       console.error('Error saving skill:', error);
+      if (error.response) {
+        console.error('Server error response:', error.response.data);
+      }
+      alert('Failed to save skill. Please try again.');
     }
   };
 
@@ -61,7 +79,7 @@ export default function SkillForm({ onSuccess, initialData }) {
       </select>
       <input
         type="file"
-        onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+        onChange={(e) => setFormData({ ...formData, image: e.target.files[0] || null })}
         className="w-full p-2 border rounded"
       />
       <button

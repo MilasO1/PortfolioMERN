@@ -1,76 +1,86 @@
 import { useState } from 'react';
-import axios from 'axios';
-import '../styles/SkillForm.css';
+import { deleteSkill } from '../api/skills';
+import SkillForm from './SkillForm';
+import '../styles/SkillCard.css';
 
-export default function SkillForm({ onSuccess, initialData }) {
-  const [formData, setFormData] = useState(initialData || {
-    title: '',
-    category: '',
-    level: 'Beginner',
-    image: null
-  });
+export default function SkillCard({ skill, onDelete, onEdit }) {
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('category', formData.category);
-    data.append('level', formData.level);
-    if (formData.image) data.append('imageUrl', formData.image);
-
-    try {
-      const endpoint = initialData 
-        ? `/api/skills/${initialData._id}`
-        : '/api/skills/addSkills';
-      const method = initialData ? 'put' : 'post';
-      
-      const { data: result } = await axios[method](endpoint, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
-
-      onSuccess(result.skill);
-    } catch (error) {
-      console.error('Error saving skill:', error);
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this skill?')) {
+      try {
+        await deleteSkill(skill._id);
+        onDelete();
+      } catch (error) {
+        console.error('Error deleting skill:', error);
+      }
     }
   };
 
+  // Level class mapping
+  const levelClasses = {
+    Beginner: 'level-beginner',
+    Intermediate: 'level-intermediate',
+    Expert: 'level-expert'
+  };
+
+  if (isEditing) {
+    return (
+      <div className="skill-card editing">
+        <div className="card-content">
+          <h3 className="card-title">Edit Skill</h3>
+          <SkillForm
+            initialData={skill}
+            onSuccess={(updatedSkill) => {
+            setIsEditing(false);
+            // Call onEdit without passing any parameters, since Dashboard's onEdit doesn't expect any
+            onEdit();
+            }}
+          />
+          <button
+            onClick={() => setIsEditing(false)}
+            className="btn btn-secondary full-width"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <input
-        type="text"
-        placeholder="Title"
-        value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-        className="form-input"
-      />
-      <input
-        type="text"
-        placeholder="Category"
-        value={formData.category}
-        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-        className="form-input"
-      />
-      <select
-        value={formData.level}
-        onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-        className="form-select"
-      >
-        <option value="Beginner">Beginner</option>
-        <option value="Intermediate">Intermediate</option>
-        <option value="Expert">Expert</option>
-      </select>
-      <input
-        type="file"
-        onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-        className="form-file-input"
-      />
-      <button
-        type="submit"
-        className="submit-button"
-      >
-        {initialData ? 'Update Skill' : 'Add Skill'}
-      </button>
-    </form>
+    <div className="skill-card">
+      {skill.imageUrl && (
+        <div className="card-image">
+          <img
+            src={skill.imageUrl}
+            alt={skill.title}
+          />
+        </div>
+      )}
+      <div className="card-content">
+        <div className="card-header">
+          <h3 className="card-title">{skill.title}</h3>
+          <span className={`level-badge ${levelClasses[skill.level] || ''}`}>
+            {skill.level}
+          </span>
+        </div>
+        <p className="card-category">{skill.category}</p>
+        <div className="card-actions">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="btn btn-edit"
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            className="btn btn-delete"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

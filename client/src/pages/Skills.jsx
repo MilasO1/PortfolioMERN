@@ -16,7 +16,7 @@ export default function Skills() {
     try {
       setLoading(true);
       const { data } = await getSkills();
-      setSkills(data.skills || []);
+      setSkills(data || []);
       setError('');
     } catch (err) {
       setError('Failed to fetch skills. Please try again later.');
@@ -31,14 +31,16 @@ export default function Skills() {
   }, []);
 
   // Get unique categories from skills
-  const categories = [...new Set(skills.map(skill => skill.category))];
+  const categories = skills.length > 0 
+  ? [...new Set(skills.map(skill => skill.category))] 
+  : [];
   
   // Filter skills based on selected filters
   const filteredSkills = skills.filter(skill => {
-    return (
-      (filters.category === '' || skill.category === filters.category) &&
-      (filters.level === '' || skill.level === filters.level)
-    );
+    const categoryMatch = filters.category === '' || 
+      skill.category.toLowerCase().includes(filters.category.toLowerCase());
+    const levelMatch = filters.level === '' || skill.level === filters.level;
+    return categoryMatch && levelMatch;
   });
 
   const handleFilterChange = (e) => {
@@ -54,6 +56,11 @@ export default function Skills() {
       level: ''
     });
   };
+
+ 
+console.log("Skills:", skills); // Verify data is loaded
+console.log("Filters:", filters); // Verify filters update correctly
+console.log("Filtered Skills:", filteredSkills); // Check filtered results
 
   return (
     <div className="skills-container">
