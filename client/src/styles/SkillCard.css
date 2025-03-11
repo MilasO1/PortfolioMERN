@@ -1,0 +1,58 @@
+.skill-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .skill-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .skill-content {
+    padding: 1rem;
+  }
+  
+  .skill-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skill-category {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skill-level {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  
+  .skill-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .edit-button {
+    padding: 0.25rem 0.5rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+  }
+  
+  .delete-button {
+    padding: 0.25rem 0.5rem;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+  }
