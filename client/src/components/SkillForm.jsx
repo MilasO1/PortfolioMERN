@@ -40,7 +40,6 @@ export default function SkillForm({ onSuccess, initialData }) {
         onSuccess(response.data.skill);
       } else {
         console.error('Unexpected response format:', response.data);
-        // Still call onSuccess to close the form even if response format is unexpected
         onSuccess(response.data);
       }
     } catch (error) {

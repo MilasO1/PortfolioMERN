@@ -33,7 +33,6 @@ export default function SkillCard({ skill, onDelete, onEdit }) {
             initialData={skill}
             onSuccess={(updatedSkill) => {
             setIsEditing(false);
-            // Call onEdit without passing any parameters, since Dashboard's onEdit doesn't expect any
             onEdit();
             }}
           />

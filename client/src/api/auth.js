@@ -31,9 +31,3 @@ export const login = (email, password) =>
 
 export const register = (name, email, password) => 
   axios.post('/api/users/register', { name, email, password }, { withCredentials: true });
-
-export const logout = () => 
-  axios.post('/api/users/logout', {}, { withCredentials: true });
-
-export const getCurrentUser = () => 
-  axios.get('/api/users/me', { withCredentials: true });
