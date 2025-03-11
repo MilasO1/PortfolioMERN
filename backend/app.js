@@ -17,7 +17,7 @@ app.use(morganMiddleware);
 app.use(json());
 app.use(helmet());
 app.use(cors({
-    origin: "portfolio-mern-pied.vercel.app",
+    origin: "portfolio-mern-theta.vercel.app",
     credentials: true
 }));
 
