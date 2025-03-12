@@ -17,7 +17,7 @@ export default function SkillCard({ skill, onDelete, onEdit }) {
     }
   };
 
-  // Level class mapping
+
   const levelClasses = {
     Beginner: 'level-beginner',
     Intermediate: 'level-intermediate',

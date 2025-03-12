@@ -30,12 +30,12 @@ export default function Skills() {
     fetchSkills();
   }, []);
 
-  // Get unique categories from skills
+  
   const categories = skills.length > 0 
   ? [...new Set(skills.map(skill => skill.category))] 
   : [];
   
-  // Filter skills based on selected filters
+
   const filteredSkills = skills.filter(skill => {
     const categoryMatch = filters.category === '' || 
       skill.category.toLowerCase().includes(filters.category.toLowerCase());
@@ -58,9 +58,9 @@ export default function Skills() {
   };
 
  
-console.log("Skills:", skills); // Verify data is loaded
-console.log("Filters:", filters); // Verify filters update correctly
-console.log("Filtered Skills:", filteredSkills); // Check filtered results
+console.log("Skills:", skills);
+console.log("Filters:", filters); 
+console.log("Filtered Skills:", filteredSkills); 
 
   return (
     <div className="skills-container">

@@ -6,7 +6,7 @@ import { validatorRequest } from "../middleware/validatorRequest.js";
 import { skillCreationValidator } from "../validations/authValidator.js";
 import { createSkill, getSkills, updateSkill, deleteSkill } from "../controller/skillController.js";
 
-// Configure multer storage
+
 const storage = diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -19,21 +19,21 @@ const storage = diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Routes
+
 router.get("/", protect, getSkills);
 
 
 router.post("/addSkills", 
   protect, 
-  upload.single('imageUrl'),  // Process multipart form first
-  skillCreationValidator,     // Then validate the processed fields
+  upload.single('imageUrl'),  
+  skillCreationValidator,     
   validatorRequest, 
   createSkill
 );
 
 router.put("/:id", 
   protect, 
-  upload.single('imageUrl'),  // Same here for update
+  upload.single('imageUrl'),  
   skillCreationValidator, 
   validatorRequest, 
   updateSkill

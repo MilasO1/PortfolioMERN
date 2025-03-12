@@ -11,20 +11,19 @@ export default function Dashboard() {
   const fetchSkills = async () => {
     try {
       const response = await axios.get('/api/skills', { withCredentials: true });
-      console.log('API response:', response.data); // Log the full response
+      console.log('API response:', response.data); 
       
-      // Check if response.data is an array directly or if it has a skills property
       if (Array.isArray(response.data)) {
         setSkills(response.data);
       } else if (response.data && Array.isArray(response.data.skills)) {
         setSkills(response.data.skills);
       } else {
         console.error('Unexpected API response format:', response.data);
-        setSkills([]); // Set to empty array as fallback
+        setSkills([]); 
       }
     } catch (error) {
       console.error('Error fetching skills:', error);
-      setSkills([]); // Set to empty array on error
+      setSkills([]); 
     }
   };
 
